@@ -1,0 +1,34 @@
+ext {
+    versions = [:]
+    libs = [:]
+    repos = [:]
+}
+
+versions += [
+        gradleVersion           : '4.3.1',
+        springBoot2Version      : "2.0.3.RELEASE",
+        selenium                : "3.13.0",
+        serenity                : "1.9.45",
+        serenityCucumber        : "1.9.12"
+]
+
+libs += [
+        /* spring-boot starter dependencies */
+        springBootStarterJdbc           : "org.springframework.boot:spring-boot-starter-jdbc:${versions.springBoot2Version}",
+
+        /* Test dependencies */
+        test : [
+                springBootStarterTest       : "org.springframework.boot:spring-boot-starter-test:${versions.springBoot2Version}",
+                selenium                    : "org.seleniumhq.selenium:selenium-server:${versions.selenium}",
+                serenityCore                : "net.serenity-bdd:serenity-core:${versions.serenity}",
+                serenitySpring              : "net.serenity-bdd:serenity-spring:${versions.serenity}",
+                serenityJunit               : "net.serenity-bdd:serenity-junit:${versions.serenity}",
+                serenityCucumber            : "net.serenity-bdd:serenity-cucumber:${versions.serenityCucumber}"
+        ]
+]
+
+repos += [
+        mvnSnapshot : "https://artifactory.<mydomain>.com/artifactory/mvn-snapshot",
+        mvnRelease : "https://artifactory.<mydomain>.com/artifactory/mvn-release"
+]
+

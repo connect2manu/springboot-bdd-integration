@@ -1,0 +1,103 @@
+// TIP: Uncomment blocks of commented code if using internal artifactory
+apply plugin: 'java'
+apply plugin: 'maven'
+apply plugin: 'maven-publish'
+//apply plugin: "com.jfrog.artifactory"
+apply plugin: 'idea'
+apply plugin: 'eclipse'
+
+def javaVersion = JavaVersion.VERSION_1_8
+sourceCompatibility = javaVersion
+targetCompatibility = javaVersion
+
+/*artifactory {
+    contextUrl = "${artifactory_contextUrl}"   //The base Artifactory URL if not overridden by the publisher/resolver
+    publish {
+        repository {
+            repoKey = "${-> version}".endsWith('SNAPSHOT') ? 'mvn-snapshot' : 'mvn-release'
+            username = "${-> version}".endsWith('SNAPSHOT') ? project["artifactory_user"] : (project.findProperty("artifactory_release_user") ?: "Artifactory release user not specified.")
+            password = "${-> version}".endsWith('SNAPSHOT') ? project["artifactory_password"] : (project.findProperty("artifactory_release_password") ?: "Artifactory release password not specified.")
+            maven = true
+        }
+        defaults {
+            publications ('mavenJava')
+            publishBuildInfo = true   //Publish build-info to Artifactory (true by default)
+            publishArtifacts = true   //Publish artifacts to Artifactory (true by default)
+        }
+    }
+    resolve {
+        repository {
+            repoKey = 'mvn-snapshot'
+            username = "${artifactory_user}"
+            password = "${artifactory_password}"
+            maven = true
+        }
+    }
+}
+artifactoryPublish.onlyIf {rootProject.hasProperty('artifactory')}*/
+
+repositories {
+    mavenLocal()
+    jcenter()
+    mavenCentral()
+/*    maven {
+        url repos.mvnSnapshot
+        credentials {
+            username getProperty('artifactory_user')
+            password getProperty('artifactory_password')
+        }
+    }
+    maven {
+        url repos.mvnRelease
+        credentials {
+            username getProperty('artifactory_user')
+            password getProperty('artifactory_password')
+        }
+    }*/
+}
+
+publishing {
+    publications {
+        mavenJava(MavenPublication) {
+            from components.java
+        }
+    }
+}
+
+/* to prevent IntelliJ to try downloading source and javadoc.
+   if any source and javadoc are misisng in artifactory it tries to download everytime */
+idea {
+    module {
+        downloadJavadoc = false
+        downloadSources = false
+    }
+}
+
+tasks.withType(JavaCompile) {
+    options.encoding = 'UTF-8'
+}
+
+task sourcesJar(type: Jar, dependsOn: classes) {
+    classifier = 'sources'
+    from sourceSets.main.allSource
+}
+
+task javadocJar(type: Jar, dependsOn: javadoc) {
+    classifier = 'javadoc'
+    from javadoc.destinationDir
+}
+
+// caching resolution strategy: off
+configurations.all {
+    resolutionStrategy.cacheChangingModulesFor 0, "seconds"
+}
+
+/*artifacts {
+    archives sourcesJar
+    archives javadocJar
+}*/
+
+/*
+task wrapper(type: Wrapper) {
+     distributionUrl = 'https://services.gradle.org/distributions/gradle-${versions.gradleVersion}-bin.zip'
+}*/

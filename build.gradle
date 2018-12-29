@@ -1,0 +1,77 @@
+buildscript {
+    apply from: "$rootDir/dependencies.gradle"
+    
+    /* Artifactory/maven repo to fetch build script (plugin) dependencies only. */
+    repositories {
+        jcenter()
+        mavenCentral()
+        
+/*      // Internal code depository location. 
+        // Credentials params can be stored under gradle.properties at gradle home loc or passed via CLI.
+        maven {
+            url "https://artifactory.mydomain.com/artifactory/mvn-plugins"
+            credentials {
+                username = project["artifactory_user"]
+                password = project["artifactory_password"]
+            }
+        }*/
+    }
+    
+    dependencies {
+        classpath "org.springframework.boot:spring-boot-gradle-plugin:${versions.springBoot2Version}"
+        //classpath "org.jfrog.buildinfo:build-info-extractor-gradle:4+"
+        classpath "com.github.jengelman.gradle.plugins:shadow:2.0.4"
+        classpath "net.serenity-bdd:serenity-gradle-plugin:1.9.23"
+    }
+}
+
+import com.github.jengelman.gradle.plugins.shadow.transformers.AppendingTransformer
+
+apply from: "$rootDir/dependencies.gradle"
+apply from: "$rootDir/base.gradle"
+apply plugin: 'org.springframework.boot'
+apply plugin: 'net.serenity-bdd.aggregator'
+
+apply plugin: 'idea'
+idea {
+    module {
+        downloadJavadoc = false
+        downloadSources = false
+    }
+}
+
+sourceSets {
+    /*  Combined source set for regular junit test with bdd-test.
+      | If needed, can be decoupled into different source sets. */
+    test {
+        java {
+            srcDirs = ['src/test/java', 'src/bdd-test/java']
+        }
+        resources {
+            srcDirs = ['src/bdd-test/resources']
+        }
+    }
+}
+
+test.finalizedBy(aggregate)
+
+jar {
+    manifest {
+        attributes 'Implementation-Title': title,
+                'Implementation-Version': version,
+                'Main-Class': mainClassName
+    }
+}
+
+dependencies {
+
+    implementation libs.springBootStarterJdbc
+
+    testImplementation libs.test.springBootStarterTest,
+            libs.test.selenium,
+            libs.test.serenityCore,
+            libs.test.serenityJunit,
+            libs.test.serenityCucumber
+
+    testRuntimeOnly libs.test.serenitySpring
+}
