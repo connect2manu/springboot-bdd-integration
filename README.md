@@ -9,4 +9,4 @@ SpringBoot BDD/Cucumber Integration + Serenity report with Gradle build
 
 
 **How it works?** Quick read 
-**[here](https://medium.com/@reply2mm/bdd-simplified-with-springboot-b56ffdcadb2b)**.
+**[here](https://medium.com/@manu.me/bdd-simplified-with-springboot-b56ffdcadb2b)**.
